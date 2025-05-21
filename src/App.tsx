@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { AddTodos, DeleteTodos, getTodos, USER_ID } from './api/todos';
+import { addTodos, deleteTodos, getTodos, USER_ID } from './api/todos';
 import { AddTodo, Todo } from './types/Todo';
 import { ErrorNotification } from './Components/ErrorNotification';
 import { Header } from './Components/Header';
@@ -23,10 +23,10 @@ export const App: React.FC = () => {
   const [filter, setfilter] = useState<FiltredValue>(FiltredValue.All);
   const [allActive, setAllActive] = useState(false);
   const [disableBtn, setDisableBtn] = useState(true);
-  const [shouldReload, setShouldReload] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [InputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState('');
+  const [deletingTodoId, setDeletingTodoId] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos()
@@ -35,15 +35,11 @@ export const App: React.FC = () => {
         setErrorMessage('');
       })
       .catch(() => setErrorMessage('Unable to load todos'));
-  }, [shouldReload]);
+  }, []);
 
   useEffect(() => {
     setDisableBtn(!todos.some(item => item.completed));
   }, [todos]);
-
-  const reloadTodos = () => {
-    setShouldReload(prev => !prev);
-  };
 
   const handleAdd = (newTodo: AddTodo) => {
     const temp = {
@@ -54,9 +50,10 @@ export const App: React.FC = () => {
     setTempTodo(temp);
     setIsLoading(true);
     setErrorMessage('');
-    AddTodos(newTodo)
-      .then(() => {
-        reloadTodos();
+    addTodos(newTodo)
+      .then((createTodo: Todo) => {
+        // reloadTodos();
+        setTodos(prevTodos => [...prevTodos, createTodo]);
         setTempTodo(null);
         setInputValue('');
       })
@@ -67,16 +64,23 @@ export const App: React.FC = () => {
       .finally(() => setIsLoading(false));
   };
 
-  const handleDelete = async (id: number) => {
-    DeleteTodos(id)
-      .then(() => reloadTodos())
+  const handleDelete = (id: number) => {
+    setIsLoading(true);
+    setDeletingTodoId(prev => [...prev, id]);
+
+    deleteTodos(id)
+      .then(() => {
+        setTodos(prev => prev.filter(todo => todo.id !== id));
+        setDeletingTodoId(prev => prev.filter(todoId => todoId !== id));
+      })
       .catch(() => {
         setErrorMessage('Failed to delete todo');
-      });
+      })
+      .finally(() => setIsLoading(false));
   };
 
-  const SortItems = [
-    ...todos.filter(todo => {
+  const filtredItems = useMemo(() => {
+    const filtered = todos.filter(todo => {
       switch (filter) {
         case FiltredValue.Active:
           return !todo.completed;
@@ -85,9 +89,10 @@ export const App: React.FC = () => {
         default:
           return true;
       }
-    }),
-    ...(tempTodo ? [tempTodo] : []),
-  ];
+    });
+
+    return tempTodo ? [...filtered, tempTodo] : filtered;
+  }, [todos, filter, tempTodo]);
 
   const handleAllActive = () => {
     setAllActive(prev => !prev);
@@ -96,11 +101,18 @@ export const App: React.FC = () => {
   const sum = todos.filter(todo => !todo.completed);
 
   const handleComletedDelete = async () => {
-    const completed = [...SortItems.filter(todo => todo.completed)];
+    const completed = filtredItems.filter(todo => todo.completed);
 
-    for (const todo of completed) {
-      handleDelete(todo.id);
+    if (completed.length === 0) {
+      return;
     }
+
+    setIsLoading(true);
+    setErrorMessage('');
+
+    await Promise.all(completed.map(todo => handleDelete(todo.id)));
+
+    setIsLoading(false);
   };
 
   return USER_ID !== 2564 ? (
@@ -115,15 +127,16 @@ export const App: React.FC = () => {
           handleAdd={handleAdd}
           setErrorMessage={setErrorMessage}
           isLoading={isLoading}
-          InputValue={InputValue}
+          InputValue={inputValue}
           setInputValue={setInputValue}
         />
         <Main
-          SortItems={SortItems}
+          filtredItems={filtredItems}
           allActive={allActive}
           handleDelete={handleDelete}
           isLoading={isLoading}
           tempTodo={tempTodo}
+          deletingTodoId={deletingTodoId}
         />
 
         {todos.length !== 0 && (

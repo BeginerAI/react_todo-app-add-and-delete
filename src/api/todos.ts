@@ -8,11 +8,11 @@ export const getTodos = () => {
   return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
 };
 
-export const DeleteTodos = (id: number) => {
+export const deleteTodos = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
 
-export const AddTodos = (newTodo: object) => {
+export const addTodos = (newTodo: object): Promise<Todo> => {
   return client.post(`/todos?userId=${USER_ID}`, newTodo);
 };
 

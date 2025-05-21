@@ -17,9 +17,8 @@ export const Footer: React.FC<Props> = ({
   filter,
   handleComletedDelete,
 }) => {
-  const handleFilterChange = (newFilter: FiltredValue) => {
-    setfilter(newFilter);
-  };
+  //   setfilter(newFilter);
+  // };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -37,7 +36,7 @@ export const Footer: React.FC<Props> = ({
             className={classNames('filter__link', {
               selected: filter === value,
             })}
-            onClick={() => handleFilterChange(value)}
+            onClick={() => setfilter(value)}
           >
             {value}
           </a>

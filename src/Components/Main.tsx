@@ -2,29 +2,30 @@ import { Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
 
 interface Props {
-  SortItems: Todo[];
+  filtredItems: Todo[];
   allActive: boolean;
   handleDelete: (id: number) => void;
   isLoading: boolean;
   tempTodo: Todo | null;
+  deletingTodoId: number[];
 }
 
 export const Main: React.FC<Props> = ({
-  SortItems,
+  filtredItems,
   allActive,
   handleDelete,
-  isLoading,
+  deletingTodoId,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {SortItems.map(todo => (
+      {filtredItems.map(todo => (
         <TodoItem
           key={todo.id}
           todo={todo}
           allActive={allActive}
           handleDelete={handleDelete}
-          isLoading={isLoading && todo.id === 0}
-          isTemp={todo.id === 0}
+          isLoading={todo.id === 0}
+          isDelete={deletingTodoId.includes(todo.id)}
         />
       ))}
     </section>

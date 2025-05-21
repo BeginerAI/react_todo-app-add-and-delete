@@ -32,7 +32,6 @@ export const Header: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log('submitted');
 
     const trimmed = InputValue.trim();
 

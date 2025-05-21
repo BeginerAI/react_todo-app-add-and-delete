@@ -9,7 +9,7 @@ interface Prop {
   allActive: boolean;
   handleDelete: (id: number) => void;
   isLoading: boolean;
-  isTemp?: boolean;
+  isDelete: boolean;
 }
 
 export const TodoItem: React.FC<Prop> = ({
@@ -17,7 +17,7 @@ export const TodoItem: React.FC<Prop> = ({
   allActive,
   handleDelete,
   isLoading,
-  isTemp = false,
+  isDelete,
 }) => {
   const [isChecked, setIsChecked] = useState(todo.completed);
   const { title } = todo;
@@ -29,12 +29,6 @@ export const TodoItem: React.FC<Prop> = ({
       setIsChecked(todo.completed);
     }
   }, [allActive, todo.completed]);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const a = +event.currentTarget.id;
-
-    handleDelete(a);
-  };
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -55,7 +49,7 @@ export const TodoItem: React.FC<Prop> = ({
             className="todo__status"
             checked={isChecked}
             onChange={handleCheckboxChange}
-            disabled={isTemp}
+            disabled={isLoading}
           />
         </label>
 
@@ -63,25 +57,24 @@ export const TodoItem: React.FC<Prop> = ({
           {title}
         </span>
 
-        {!isTemp && (
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDelete"
-            id={todo.id.toString()}
-            onClick={handleClick}
-            disabled={isLoading}
-          >
-            ×
-          </button>
-        )}
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          id={todo.id.toString()}
+          onClick={() => handleDelete(todo.id)}
+          disabled={isLoading}
+        >
+          ×
+        </button>
 
-        {isLoading && (
-          <div data-cy="TodoLoader" className="modal overlay">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        )}
+        <div
+          data-cy="TodoLoader"
+          className={`modal overlay ${isLoading || isDelete ? 'is-active' : ''}`}
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
       </div>
     </>
   );
