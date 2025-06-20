@@ -3,7 +3,7 @@ import { TodoItem } from './TodoItem';
 
 interface Props {
   filtredItems: Todo[];
-  allActive: boolean;
+  handleToggle: (id: number) => void;
   handleDelete: (id: number) => void;
   isLoading: boolean;
   tempTodo: Todo | null;
@@ -12,7 +12,7 @@ interface Props {
 
 export const Main: React.FC<Props> = ({
   filtredItems,
-  allActive,
+  handleToggle,
   handleDelete,
   deletingTodoId,
 }) => {
@@ -22,7 +22,7 @@ export const Main: React.FC<Props> = ({
         <TodoItem
           key={todo.id}
           todo={todo}
-          allActive={allActive}
+          handleToggle={handleToggle}
           handleDelete={handleDelete}
           isLoading={todo.id === 0}
           isDelete={deletingTodoId.includes(todo.id)}

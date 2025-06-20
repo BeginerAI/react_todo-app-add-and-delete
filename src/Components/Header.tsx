@@ -9,7 +9,7 @@ interface Props {
   setErrorMessage: (args: string) => void;
   isLoading: boolean;
   setInputValue: (args: string) => void;
-  InputValue: string;
+  inputValue: string;
 }
 
 export const Header: React.FC<Props> = ({
@@ -18,7 +18,7 @@ export const Header: React.FC<Props> = ({
   setErrorMessage,
   isLoading,
   setInputValue,
-  InputValue,
+  inputValue,
 }) => {
   const refInput = useRef<HTMLInputElement>(null);
 
@@ -33,12 +33,12 @@ export const Header: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const trimmed = InputValue.trim();
+    const trimmed = inputValue.trim();
 
     const obgData: AddTodo = {
       userId: USER_ID,
       title: trimmed,
-      completed: true,
+      completed: false,
     };
 
     if (!trimmed) {
@@ -69,7 +69,7 @@ export const Header: React.FC<Props> = ({
             type="text"
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
-            value={InputValue}
+            value={inputValue}
             onChange={handleChange}
             ref={refInput}
             disabled={isLoading}

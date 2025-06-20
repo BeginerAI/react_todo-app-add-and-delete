@@ -21,8 +21,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const { errorMessage, setErrorMessage } = useError();
   const [filter, setfilter] = useState<FiltredValue>(FiltredValue.All);
-  const [allActive, setAllActive] = useState(false);
-  const [disableBtn, setDisableBtn] = useState(true);
+  const [isDisableBtn, setIsDisableBtn] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [inputValue, setInputValue] = useState('');
@@ -38,7 +37,7 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setDisableBtn(!todos.some(item => item.completed));
+    setIsDisableBtn(!todos.some(item => item.completed));
   }, [todos]);
 
   const handleAdd = (newTodo: AddTodo) => {
@@ -52,7 +51,6 @@ export const App: React.FC = () => {
     setErrorMessage('');
     addTodos(newTodo)
       .then((createTodo: Todo) => {
-        // reloadTodos();
         setTodos(prevTodos => [...prevTodos, createTodo]);
         setTempTodo(null);
         setInputValue('');
@@ -95,7 +93,12 @@ export const App: React.FC = () => {
   }, [todos, filter, tempTodo]);
 
   const handleAllActive = () => {
-    setAllActive(prev => !prev);
+    const updatedTodos = todos.map(todo => ({
+      ...todo,
+      completed: !todo.completed,
+    }));
+
+    setTodos(updatedTodos);
   };
 
   const sum = todos.filter(todo => !todo.completed);
@@ -115,6 +118,14 @@ export const App: React.FC = () => {
     setIsLoading(false);
   };
 
+  const handleToggle = (id: number) => {
+    setTodos(prev =>
+      prev.map(todo =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+      ),
+    );
+  };
+
   return USER_ID !== 2564 ? (
     <UserWarning />
   ) : (
@@ -127,12 +138,12 @@ export const App: React.FC = () => {
           handleAdd={handleAdd}
           setErrorMessage={setErrorMessage}
           isLoading={isLoading}
-          InputValue={inputValue}
+          inputValue={inputValue}
           setInputValue={setInputValue}
         />
         <Main
           filtredItems={filtredItems}
-          allActive={allActive}
+          handleToggle={handleToggle}
           handleDelete={handleDelete}
           isLoading={isLoading}
           tempTodo={tempTodo}
@@ -141,7 +152,7 @@ export const App: React.FC = () => {
 
         {todos.length !== 0 && (
           <Footer
-            disableBtn={disableBtn}
+            isDisableBtn={isDisableBtn}
             sum={sum}
             setfilter={setfilter}
             filter={filter}

@@ -2,11 +2,10 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { useEffect, useState } from 'react';
 
 interface Prop {
   todo: Todo;
-  allActive: boolean;
+  handleToggle: (id: number) => void;
   handleDelete: (id: number) => void;
   isLoading: boolean;
   isDelete: boolean;
@@ -14,32 +13,19 @@ interface Prop {
 
 export const TodoItem: React.FC<Prop> = ({
   todo,
-  allActive,
+  handleToggle,
   handleDelete,
   isLoading,
   isDelete,
 }) => {
-  const [isChecked, setIsChecked] = useState(todo.completed);
-  const { title } = todo;
-
-  useEffect(() => {
-    if (allActive) {
-      setIsChecked(true);
-    } else {
-      setIsChecked(todo.completed);
-    }
-  }, [allActive, todo.completed]);
-
-  const handleCheckboxChange = () => {
-    setIsChecked(!isChecked);
-  };
+  const { title, completed, id } = todo;
 
   return (
     <>
       <div
         data-cy="Todo"
         className={classNames('todo', {
-          completed: isChecked,
+          completed: completed,
         })}
       >
         <label className="todo__status-label">
@@ -47,8 +33,8 @@ export const TodoItem: React.FC<Prop> = ({
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
-            checked={isChecked}
-            onChange={handleCheckboxChange}
+            checked={completed}
+            onChange={() => handleToggle(id)}
             disabled={isLoading}
           />
         </label>
@@ -61,7 +47,9 @@ export const TodoItem: React.FC<Prop> = ({
           type="button"
           className="todo__remove"
           data-cy="TodoDelete"
-          id={todo.id.toString()}
+          id={
+            todo.id !== undefined && todo.id !== null ? todo.id.toString() : ''
+          }
           onClick={() => handleDelete(todo.id)}
           disabled={isLoading}
         >

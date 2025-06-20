@@ -3,7 +3,7 @@ import { Todo } from '../types/Todo';
 import { FiltredValue } from '../App';
 
 interface Props {
-  disableBtn: boolean;
+  isDisableBtn: boolean;
   sum: Todo[];
   setfilter: React.Dispatch<React.SetStateAction<FiltredValue>>;
   filter: FiltredValue;
@@ -11,15 +11,12 @@ interface Props {
 }
 
 export const Footer: React.FC<Props> = ({
-  disableBtn,
+  isDisableBtn,
   sum,
   setfilter,
   filter,
   handleComletedDelete,
 }) => {
-  //   setfilter(newFilter);
-  // };
-
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -48,7 +45,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={disableBtn}
+        disabled={isDisableBtn}
         onClick={handleComletedDelete}
       >
         Clear completed
