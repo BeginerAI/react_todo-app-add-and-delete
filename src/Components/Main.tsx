@@ -5,7 +5,6 @@ interface Props {
   filtredItems: Todo[];
   handleToggle: (id: number) => void;
   handleDelete: (id: number) => void;
-  isLoading: boolean;
   tempTodo: Todo | null;
   deletingTodoId: number[];
 }
@@ -15,6 +14,7 @@ export const Main: React.FC<Props> = ({
   handleToggle,
   handleDelete,
   deletingTodoId,
+  tempTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -24,7 +24,7 @@ export const Main: React.FC<Props> = ({
           todo={todo}
           handleToggle={handleToggle}
           handleDelete={handleDelete}
-          isLoading={todo.id === 0}
+          tempTodo={tempTodo?.id === todo.id}
           isDelete={deletingTodoId.includes(todo.id)}
         />
       ))}

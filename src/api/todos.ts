@@ -13,7 +13,7 @@ export const deleteTodos = (id: number) => {
 };
 
 export const addTodos = (newTodo: object): Promise<Todo> => {
-  return client.post(`/todos?userId=${USER_ID}`, newTodo);
+  return client.post(`/todos`, { ...newTodo, userId: USER_ID });
 };
 
 // Add more methods here

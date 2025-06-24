@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { addTodos, deleteTodos, getTodos, USER_ID } from './api/todos';
 import { AddTodo, Todo } from './types/Todo';
@@ -22,7 +22,6 @@ export const App: React.FC = () => {
   const { errorMessage, setErrorMessage } = useError();
   const [filter, setfilter] = useState<FiltredValue>(FiltredValue.All);
   const [isDisableBtn, setIsDisableBtn] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [deletingTodoId, setDeletingTodoId] = useState<number[]>([]);
@@ -40,14 +39,20 @@ export const App: React.FC = () => {
     setIsDisableBtn(!todos.some(item => item.completed));
   }, [todos]);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!tempTodo) {
+      inputRef.current?.focus();
+    }
+  }, [tempTodo]);
+
   const handleAdd = (newTodo: AddTodo) => {
     const temp = {
       id: 0,
       ...newTodo,
     };
 
-    setTempTodo(temp);
-    setIsLoading(true);
     setErrorMessage('');
     addTodos(newTodo)
       .then((createTodo: Todo) => {
@@ -56,25 +61,25 @@ export const App: React.FC = () => {
         setInputValue('');
       })
       .catch(() => {
-        setErrorMessage('Failed to add todo');
+        setErrorMessage('Unable to add a todo');
         setTempTodo(null);
-      })
-      .finally(() => setIsLoading(false));
+      });
+
+    setTempTodo(temp);
   };
 
   const handleDelete = (id: number) => {
-    setIsLoading(true);
     setDeletingTodoId(prev => [...prev, id]);
 
     deleteTodos(id)
       .then(() => {
         setTodos(prev => prev.filter(todo => todo.id !== id));
         setDeletingTodoId(prev => prev.filter(todoId => todoId !== id));
+        inputRef.current?.focus();
       })
       .catch(() => {
-        setErrorMessage('Failed to delete todo');
-      })
-      .finally(() => setIsLoading(false));
+        setErrorMessage('Unable to delete a todo');
+      });
   };
 
   const filtredItems = useMemo(() => {
@@ -110,12 +115,9 @@ export const App: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
     setErrorMessage('');
 
     await Promise.all(completed.map(todo => handleDelete(todo.id)));
-
-    setIsLoading(false);
   };
 
   const handleToggle = (id: number) => {
@@ -137,15 +139,15 @@ export const App: React.FC = () => {
           handle={handleAllActive}
           handleAdd={handleAdd}
           setErrorMessage={setErrorMessage}
-          isLoading={isLoading}
+          tempTodo={tempTodo}
           inputValue={inputValue}
           setInputValue={setInputValue}
+          inputRef={inputRef}
         />
         <Main
           filtredItems={filtredItems}
           handleToggle={handleToggle}
           handleDelete={handleDelete}
-          isLoading={isLoading}
           tempTodo={tempTodo}
           deletingTodoId={deletingTodoId}
         />

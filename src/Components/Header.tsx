@@ -1,31 +1,26 @@
 /* eslint-disable no-console */
-import { useEffect, useRef } from 'react';
-import { AddTodo } from '../types/Todo';
+import { AddTodo, Todo } from '../types/Todo';
 import { USER_ID } from '../api/todos';
 
 interface Props {
   handle: () => void;
   handleAdd: (newTodo: AddTodo) => void;
   setErrorMessage: (args: string) => void;
-  isLoading: boolean;
+  tempTodo: Todo | null;
   setInputValue: (args: string) => void;
   inputValue: string;
+  inputRef: React.RefObject<HTMLInputElement>;
 }
 
 export const Header: React.FC<Props> = ({
   handle,
   handleAdd,
   setErrorMessage,
-  isLoading,
+  tempTodo,
   setInputValue,
   inputValue,
+  inputRef,
 }) => {
-  const refInput = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    refInput.current?.focus();
-  }, []);
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
@@ -71,8 +66,8 @@ export const Header: React.FC<Props> = ({
             placeholder="What needs to be done?"
             value={inputValue}
             onChange={handleChange}
-            ref={refInput}
-            disabled={isLoading}
+            ref={inputRef}
+            disabled={!!tempTodo}
           />
         </form>
       </header>

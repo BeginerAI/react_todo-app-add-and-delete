@@ -7,7 +7,7 @@ interface Prop {
   todo: Todo;
   handleToggle: (id: number) => void;
   handleDelete: (id: number) => void;
-  isLoading: boolean;
+  tempTodo: boolean;
   isDelete: boolean;
 }
 
@@ -15,7 +15,7 @@ export const TodoItem: React.FC<Prop> = ({
   todo,
   handleToggle,
   handleDelete,
-  isLoading,
+  tempTodo,
   isDelete,
 }) => {
   const { title, completed, id } = todo;
@@ -35,7 +35,7 @@ export const TodoItem: React.FC<Prop> = ({
             className="todo__status"
             checked={completed}
             onChange={() => handleToggle(id)}
-            disabled={isLoading}
+            disabled={tempTodo}
           />
         </label>
 
@@ -51,14 +51,16 @@ export const TodoItem: React.FC<Prop> = ({
             todo.id !== undefined && todo.id !== null ? todo.id.toString() : ''
           }
           onClick={() => handleDelete(todo.id)}
-          disabled={isLoading}
+          disabled={tempTodo}
         >
           ×
         </button>
 
         <div
           data-cy="TodoLoader"
-          className={`modal overlay ${isLoading || isDelete ? 'is-active' : ''}`}
+          className={classNames('modal', 'overlay', {
+            'is-active': tempTodo || isDelete,
+          })}
         >
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />
